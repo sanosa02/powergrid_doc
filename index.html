@@ -541,37 +541,37 @@
 <h3>4.3. Пайплайн імпорту (OSM → БД)</h3>
 
 <div class="flow-diagram">
-<span class="or stage">▸ OpenStreetMap</span>
+<span class="or stage">① OpenStreetMap</span>
 <span class="dim desc">   Збір топології — підстанції та ЛЕП з 25 регіонів України.</span>
 
 <span class="dim arrow">   ↓</span>
 
-<span class="or stage">▸ Просторове злиття</span>
+<span class="or stage">② Просторове злиття</span>
 <span class="dim desc">   Об'єднання близьких точок (500 м), іменне злиття однойменних підстанцій, дедублікація паралельних ліній.</span>
 
 <span class="dim arrow">   ↓</span>
 
-<span class="or stage">▸ Генератори (OSINT)</span>
+<span class="or stage">③ Генератори (OSINT)</span>
 <span class="dim desc">   28 електростанцій із Wikipedia, ENTSO-E, GEM. Зіставлення з найближчими вузлами мережі (радіус 10 км) — 25 із 28 зіставлено.</span>
 
 <span class="dim arrow">   ↓</span>
 
-<span class="or stage">▸ Автотрансформатори</span>
+<span class="or stage">④ Автотрансформатори</span>
 <span class="dim desc">   42 шт. 750/330 кВ — імпорт із OSM.</span>
 
 <span class="dim arrow">   ↓</span>
 
-<span class="or stage">▸ St. Clair межі стійкості</span>
+<span class="or stage">⑤ St. Clair межі стійкості</span>
 <span class="dim desc">   Обмеження пропускної здатності довгих ЛЕП за формулою статичної стійкості.</span>
 
 <span class="dim arrow">   ↓</span>
 
-<span class="or stage">▸ Калібрування</span>
+<span class="or stage">⑥ Калібрування</span>
 <span class="dim desc">   Підбір thermal multiplier (2.7) для реалістичного рівня перевантажень.</span>
 
 <span class="dim arrow">   ↓</span>
 
-<span class="gr stage">▸ Готова модель мережі</span>
+<span class="gr stage">⑦ Готова модель мережі</span>
 <span class="dim desc">   Повна модель 330/750 кВ, готова до симуляцій.</span>
 </div>
 
