@@ -516,25 +516,38 @@
 <h3>4.3. Пайплайн імпорту (OSM → БД)</h3>
 
 <div class="diagram">
-<span class="dim">OpenStreetMap</span> (топологія: підстанції, ЛЕП)
-  <span class="dim">↓</span>
-<span class="or">Просторове злиття</span> — об'єднання близьких точок (500 м),
-іменне злиття, дедублікація паралельних ліній
-  <span class="dim">↓</span>
-<span class="hl">OSINT-джерела</span> (Wikipedia, ENTSO-E, GEM)
-  <span class="dim">↓</span>
-<span class="or">Зіставлення генераторів</span> — 28 електростанцій →
-25 зіставлено з найближчими вузлами (10 км)
-  <span class="dim">↓</span>
-<span class="hl">Автотрансформатори</span> — 42 шт., 750/330 кВ
-  <span class="dim">↓</span>
-<span class="or">St. Clair межі стійкості</span> — обмеження пропускної
-здатності довгих ЛЕП за формулою статичної стійкості
-  <span class="dim">↓</span>
-<span class="hl">Калібрування</span> — підбір thermal multiplier (2.7)
-для реалістичного рівня перевантажень
-  <span class="dim">↓</span>
-<span class="gr">Готова модель мережі</span> → симуляції
+<span class="or">▸ OpenStreetMap</span>
+<span class="dim">   Збір топології — підстанції та ЛЕП з 25 регіонів України через Overpass API.</span>
+
+<span class="dim">   ↓</span>
+
+<span class="or">▸ Просторове злиття</span>
+<span class="dim">   Об'єднання близьких точок (500 м), іменне злиття однойменних підстанцій, дедублікація паралельних ліній.</span>
+
+<span class="dim">   ↓</span>
+
+<span class="or">▸ Генератори (OSINT)</span>
+<span class="dim">   28 електростанцій із Wikipedia, ENTSO-E, GEM. Просторове зіставлення з найближчими вузлами мережі (радіус 10 км) — 25 зіставлено.</span>
+
+<span class="dim">   ↓</span>
+
+<span class="or">▸ Автотрансформатори</span>
+<span class="dim">   42 шт. 750/330 кВ — імпорт із OSM з параметрами радянських АТ.</span>
+
+<span class="dim">   ↓</span>
+
+<span class="or">▸ St. Clair межі стійкості</span>
+<span class="dim">   Обмеження пропускної здатності довгих ЛЕП за формулою статичної стійкості.</span>
+
+<span class="dim">   ↓</span>
+
+<span class="or">▸ Калібрування</span>
+<span class="dim">   Підбір thermal multiplier (2.7) для реалістичного рівня перевантажень у симуляціях.</span>
+
+<span class="dim">   ↓</span>
+
+<span class="gr">▸ Готова модель мережі</span>
+<span class="dim">   Результат — повна модель 330/750 кВ, готова до симуляцій.</span>
 </div>
 
 <h3>4.4. Якість даних</h3>
