@@ -696,12 +696,12 @@ d. Відключення ліній → перерахунок → повтор
   <tr><td><strong>total_islands_avg</strong></td><td>Середня кількість енергоостровів за ітерацію (>1 = system split)</td><td>Islanding KPI card</td></tr>
 </table>
 
-<h3>6.4. Візуалізація (Apache ECharts)</h3>
+<h3>6.4. Візуалізація</h3>
 
 <table>
   <tr><th>Графік</th><th>Що показує</th></tr>
-  <tr><td><strong>S-Curve</strong></td><td>Dual Y-axis: avg_lost_mw (МВт, line + CI band) + blackout_rate (%, bars) за target_size. DataZoom-слайдер + brush-виділення для крос-фільтрації Waterfall.</td></tr>
-  <tr><td><strong>Waterfall</strong></td><td>Декомпозиція втрат: Базове навантаження → −АЧР → −САОН → −Ізоляція → Залишкове. Фільтрується за виділеним діапазоном attack size з S-Curve.</td></tr>
+  <tr><td><strong>S-Curve</strong></td><td>Як зростають втрати (МВт) і частота блекаутів (%) зі збільшенням кількості атакованих вузлів. Можна виділити діапазон — Waterfall перебудується під нього.</td></tr>
+  <tr><td><strong>Waterfall</strong></td><td>Покроковий розклад втрат: базове навантаження → скільки зняла автоматика (АЧР, САОН) → скільки втрачено через ізоляцію → залишок.</td></tr>
 </table>
 
 <hr style="border-color: var(--border); margin: 32px 0;">
