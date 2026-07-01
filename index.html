@@ -395,7 +395,7 @@
   <tr><td><span class="tag tag-db">DB</span></td><td>TimescaleDB (PostgreSQL 16), гіпертаблиці, GIN-індекси, 13 SQL-міграцій</td></tr>
   <tr><td><span class="tag tag-be">Backend</span></td><td>Python 3.11, FastAPI, pandapower (DC Power Flow), SQLAlchemy 2.0 async, LangGraph</td></tr>
   <tr><td><span class="tag tag-fe">Frontend</span></td><td>React 18, TypeScript (strict), Vite 5, Tailwind CSS, Leaflet, Apache ECharts 6</td></tr>
-  <tr><td><span class="tag tag-ai">AI</span></td><td>LangGraph (Supervisor-Worker), gpt-4o-mini, 7 інструментів, PostgreSQL persistent checkpointer</td></tr>
+  <tr><td><span class="tag tag-ai">AI</span></td><td>LangGraph (Supervisor-Worker), gpt-5.4-mini, 7 інструментів, PostgreSQL persistent checkpointer</td></tr>
   <tr><td>Infra</td><td>Docker Compose (5 сервісів), Caddy reverse proxy, on-premise розгортання</td></tr>
 </table>
 
@@ -830,7 +830,7 @@
 <div class="diagram">
 <span class="dim">Користувач: "Які 3 підстанції найкритичніші?"</span>
                        <span class="dim">▼</span>
-<span class="or">Supervisor</span> (gpt-4o-mini, без інструментів)
+<span class="or">Supervisor</span> (gpt-5.4-mini, без інструментів)
    <span class="dim">├── route "topology" →</span> <span class="hl">Topology Worker</span> (5 tools)
    <span class="dim">│</span>   get_grid_topological_summary, get_grid_physical_summary,
    <span class="dim">│</span>   get_pareto_ranking, get_pareto_frontier,
