@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GridTwin UA — Архітектура демо</title>
+  <meta name="description" content="Цифровий двійник магістральної мережі України (330/750 кВ). Архітектура, симуляційний пайплайн, метрики та аналітика для інженера-енергетика.">
+  <meta property="og:title" content="GridTwin UA — Архітектура демо">
+  <meta property="og:description" content="Цифровий двійник магістральної мережі України (330/750 кВ)">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>⚡</text></svg>">
   <style>
     :root {
       --bg: #0b1120;
@@ -145,6 +151,8 @@
     .tag-be { background: #1e4a1e; color: #4ade80; }
     .tag-fe { background: #5a1e5a; color: #c084fc; }
     .tag-ai { background: #4a3a1e; color: #fbbf24; }
+    .tag-p0 { background: #5a1e1e; color: #f87171; }
+    .tag-p1 { background: #4a3a1e; color: #fbbf24; }
 
     .note {
       background: var(--accent-dim);
@@ -155,11 +163,20 @@
       font-size: 0.9rem;
     }
 
+    .warning {
+      background: #3a2a1e;
+      border-left: 3px solid var(--orange);
+      padding: 12px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin: 16px 0;
+      font-size: 0.9rem;
+    }
+
     /* ── Sidebar ── */
     .sidebar {
       position: fixed;
       top: 0; left: 0;
-      width: 260px;
+      width: 270px;
       height: 100vh;
       background: var(--surface);
       border-right: 1px solid var(--border);
@@ -185,9 +202,9 @@
 
     .sidebar-nav a {
       display: block;
-      padding: 6px 12px;
+      padding: 5px 12px;
       border-radius: 6px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: var(--text-muted);
       text-decoration: none;
       transition: background 0.15s, color 0.15s;
@@ -213,9 +230,40 @@
     }
 
     .main-content {
-      margin-left: 260px;
+      margin-left: 270px;
       max-width: 960px;
       padding: 40px 32px 80px;
+    }
+
+    /* ── Glossary term ── */
+    .glossary-term {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .glossary-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      margin: 12px 0 20px;
+    }
+
+    .glossary-grid dt {
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 0.9rem;
+      padding: 8px 12px 2px;
+      border-top: 1px solid var(--border);
+      margin-top: 4px;
+    }
+
+    .glossary-grid dt:first-child { border-top: none; margin-top: 0; }
+
+    .glossary-grid dd {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: 2px 12px 8px;
+      margin: 0;
     }
 
     @media (max-width: 900px) {
@@ -223,6 +271,28 @@
       .sidebar.open { transform: translateX(0); }
       .sidebar-toggle { display: flex; }
       .main-content { margin-left: 0; padding: 64px 20px 60px; }
+    }
+
+    /* ── Print ── */
+    @media print {
+      body { background: white; color: #111; max-width: none; padding: 0; }
+      .sidebar, .sidebar-toggle { display: none !important; }
+      .main-content { margin-left: 0; padding: 20px 0; }
+      .diagram { background: #f5f5f5; border: 1px solid #ddd; color: #111; }
+      .diagram .hl, .diagram .or, .diagram .gr, .diagram .rd, .diagram .dim { color: #111; }
+      table { border-color: #ddd; }
+      th { background: #eee; color: #111; }
+      td { color: #333; }
+      th, td { border-color: #ddd; }
+      .metric-card { background: #f5f5f5; border-color: #ddd; }
+      .metric-card .value { color: #111; }
+      .metric-card .label { color: #555; }
+      .note, .warning { background: #f5f5f5; }
+      .tag { border: 1px solid #ccc; }
+      .stage-list li { background: #f5f5f5; border-color: #ddd; }
+      .stage-list li::before { background: #ddd; color: #111; }
+      h2 { page-break-after: avoid; }
+      p, li { color: #333; }
     }
   </style>
 </head>
@@ -235,14 +305,17 @@
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-title">Зміст</div>
   <ul class="sidebar-nav">
-    <li><a href="#purpose">1. Призначення системи</a></li>
-    <li><a href="#architecture">2. Системна архітектура</a></li>
-    <li><a href="#data-model">3. Модель даних</a></li>
-    <li><a href="#simulation">4. Симуляційний пайплайн</a></li>
-    <li><a href="#analytics">5. Аналітика та метрики</a></li>
-    <li><a href="#ui">6. Інтерфейс користувача</a></li>
-    <li><a href="#ai-copilot">7. AI Copilot</a></li>
-    <li><a href="#demo-summary">8. Резюме для демо</a></li>
+    <li><a href="#purpose">1. Призначення</a></li>
+    <li><a href="#architecture">2. Архітектура</a></li>
+    <li><a href="#params">3. Параметри симуляції</a></li>
+    <li><a href="#data-model">4. Модель даних</a></li>
+    <li><a href="#simulation">5. Симуляційний пайплайн</a></li>
+    <li><a href="#analytics">6. Аналітика та метрики</a></li>
+    <li><a href="#ui">7. Інтерфейс</a></li>
+    <li><a href="#ai-copilot">8. AI Copilot</a></li>
+    <li><a href="#limitations">9. Обмеження</a></li>
+    <li><a href="#demo-summary">10. Резюме для демо</a></li>
+    <li><a href="#glossary">Глосарій</a></li>
   </ul>
 </nav>
 
@@ -256,24 +329,34 @@
   <strong>GridTwin UA</strong> — це повноцінний цифровий клон-симулятор енергосистеми України рівня оператора передачі.
   Система будує фізично достовірну модель мережі на основі відкритих даних (OpenStreetMap, ENTSO-E, OSINT),
   розраховує потокорозподіл потужності методом DC Power Flow через pandapower
-  і моделює каскадні аварії методом Монте-Карло для оцінки стійкості мережі.
+  і моделює каскадні аварії методом Монте-Карло
+  для оцінки стійкості мережі до кінетичних впливів (атаки на підстанції та ЛЕП).
+</p>
+
+<p style="font-size: 0.85rem;">
+  Джерельний код: <a href="https://github.com/sanosa02/powergrid">github.com/sanosa02/powergrid</a>
+  &nbsp;·&nbsp;
+  Уся інфраструктура — Docker on-premise. Жодних зовнішніх хмар.
 </p>
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
+<!-- ═══════════ 1. Призначення системи ═══════════ -->
 <h2 id="purpose">1. Призначення системи</h2>
 
-<p>Система відповідає на ключові питання експлуатації мережі:</p>
+<p>Система відповідає на ключові питання експлуатації мережі в умовах кінетичних загроз:</p>
 
 <ul style="color: var(--text-muted); padding-left: 24px; margin-bottom: 16px;">
   <li><strong>Що буде, якщо вийдуть з ладу N підстанцій?</strong> — Моделювання первинного удару та каскадних відмов</li>
   <li><strong>Які вузли найкритичніші?</strong> — Pareto-ранжування за комбінованим індексом (частота ізоляції × betweenness centrality)</li>
   <li><strong>Який мінімальний набір вузлів потрібно захистити?</strong> — Pareto-frontier: trade-off між вартістю захисту та очікуваними втратами</li>
   <li><strong>Як виглядає N-0 (нормальний режим)?</strong> — Детермінований розрахунок потокорозподілу без атак</li>
+  <li><strong>Де найвужчі місця?</strong> — Визначення перевантажених ЛЕП, St. Clair-нестабільних ліній, топологічно ізольованих вузлів</li>
 </ul>
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
+<!-- ═══════════ 2. Системна архітектура ═══════════ -->
 <h2 id="architecture">2. Системна архітектура</h2>
 
 <p>Тришарова архітектура: база даних → бекенд (FastAPI) → фронтенд (React). Усе в Docker.</p>
@@ -284,24 +367,24 @@
 <span class="dim">│</span> OSINT (Wikipedia, GEM, ENTSO-E, IEA)       <span class="dim">│</span>
 <span class="dim">└──────────────────────┬────────────────────────┘</span>
                        <span class="dim">▼</span>
-<span class="rd">┌─ База даних (TimescaleDB / PostgreSQL) ────────────────────┐</span>
-<span class="rd">│</span> 270 шин (buses), 350 ЛЕП (lines), 25 генераторів        <span class="rd">│</span>
-<span class="rd">│</span> 42 автотрансформатори 750/330 кВ                        <span class="rd">│</span>
+<span class="rd">┌─ База даних (TimescaleDB / PostgreSQL 16) ────────────────┐</span>
+<span class="rd">│</span> Статична топологія: buses (270), lines (350), trafos (42)<span class="rd">│</span>
 <span class="rd">│</span> Гіпертаблиці: simulation_logs, overload_events          <span class="rd">│</span>
+<span class="rd">│</span> Сесії: simulation_sessions, simulation_tasks            <span class="rd">│</span>
+<span class="rd">│</span> Агент: agent_checkpoints, agent_checkpoint_writes       <span class="rd">│</span>
 <span class="rd">└──────────────────────┬─────────────────────────────────────┘</span>
                        <span class="dim">▼</span>
 <span class="hl">┌─ Бекенд (Python 3.11 + FastAPI + pandapower) ──────────────┐</span>
-<span class="hl">│</span>  SimulationRouter  ─ Монте-Карло, deterministic flow   <span class="hl">│</span>
-<span class="hl">│</span>  AnalyticsRouter   ─ Pareto ranking, frontier          <span class="hl">│</span>
-<span class="hl">│</span>  NetworkRouter      ─ graph, summary                    <span class="hl">│</span>
-<span class="hl">│</span>  AgentRouter         ─ AI Copilot (LangGraph)           <span class="hl">│</span>
+<span class="hl">│</span>  PhysicalSimulationService (V1 + V2 SSE streaming)     <span class="hl">│</span>
+<span class="hl">│</span>  AnalyticsService — Pareto ranking, frontier, waterfall <span class="hl">│</span>
+<span class="hl">│</span>  AgentService — LangGraph Supervisor-Worker (7 tools)  <span class="hl">│</span>
 <span class="hl">└──────────────────────┬─────────────────────────────────────┘</span>
                        <span class="dim">▼</span>
 <span class="gr">┌─ Фронтенд (React 18 + TypeScript + Leaflet + ECharts) ─────┐</span>
-<span class="gr">│</span>  Інтерактивна карта мережі (GIS)                      <span class="gr">│</span>
-<span class="gr">│</span>  Консоль запуску симуляцій                              <span class="gr">│</span>
-<span class="gr">│</span>  Pareto-таблиці та графіки (S-Curve, Waterfall)       <span class="gr">│</span>
-<span class="gr">│</span>  AI-асистент (embedded chat)                           <span class="gr">│</span>
+<span class="gr">│</span>  Інтерактивна карта мережі (GIS, 270 вузлів × 350 ЛЕП) <span class="gr">│</span>
+<span class="gr">│</span>  Консоль симуляції (налаштування + результати)          <span class="gr">│</span>
+<span class="gr">│</span>  Pareto-таблиці, S-Curve, Waterfall chart              <span class="gr">│</span>
+<span class="gr">│</span>  AI-асистент (embedded chat, SSE streaming)             <span class="gr">│</span>
 <span class="gr">└────────────────────────────────────────────────────────────┘</span>
 </div>
 
@@ -309,18 +392,97 @@
 
 <table>
   <tr><th>Шар</th><th>Технології</th></tr>
-  <tr><td><span class="tag tag-db">DB</span></td><td>TimescaleDB (PostgreSQL 16), гіпертаблиці, GIN-індекси</td></tr>
-  <tr><td><span class="tag tag-be">Backend</span></td><td>Python 3.11, FastAPI, pandapower (DC Power Flow), SQLAlchemy async, LangGraph</td></tr>
-  <tr><td><span class="tag tag-fe">Frontend</span></td><td>React 18, TypeScript (strict), Vite 5, Tailwind CSS, Leaflet, Apache ECharts</td></tr>
-  <tr><td><span class="tag tag-ai">AI</span></td><td>LangGraph (Supervisor-Worker), gpt-4o-mini, 7 tools, persistent checkpointer</td></tr>
-  <tr><td>Infra</td><td>Docker Compose, Caddy reverse proxy, on-premise deployment</td></tr>
+  <tr><td><span class="tag tag-db">DB</span></td><td>TimescaleDB (PostgreSQL 16), гіпертаблиці, GIN-індекси, 13 SQL-міграцій</td></tr>
+  <tr><td><span class="tag tag-be">Backend</span></td><td>Python 3.11, FastAPI, pandapower (DC Power Flow), SQLAlchemy 2.0 async, LangGraph</td></tr>
+  <tr><td><span class="tag tag-fe">Frontend</span></td><td>React 18, TypeScript (strict), Vite 5, Tailwind CSS, Leaflet, Apache ECharts 6</td></tr>
+  <tr><td><span class="tag tag-ai">AI</span></td><td>LangGraph (Supervisor-Worker), gpt-4o-mini, 7 інструментів, PostgreSQL persistent checkpointer</td></tr>
+  <tr><td>Infra</td><td>Docker Compose (5 сервісів), Caddy reverse proxy, on-premise розгортання</td></tr>
 </table>
+
+<h3>2.2. Docker-first філософія</h3>
+
+<p>
+  Увесь життєвий цикл — у контейнерах. Жоден компонент не запускається на хості.
+  Розробка, тестування (261 тест), імпорт даних, калібрування — усе через <code>docker compose exec</code>.
+  <code>node_modules</code> живе виключно всередині контейнера фронтенду.
+  HMR/live-reload працює через bind mounts.
+</p>
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
-<h2 id="data-model">3. Модель даних</h2>
+<!-- ═══════════ 3. Параметри симуляції ═══════════ -->
+<h2 id="params">3. Параметри симуляції</h2>
 
-<h3>3.1. Топологія мережі</h3>
+<p>Усі параметри, які інженер може налаштувати в консолі перед запуском Монте-Карло:</p>
+
+<h3>3.1. Сценарій атаки (Attack Profile)</h3>
+
+<table>
+  <tr><th>Профіль</th><th>Опис</th><th>Як вибираються цілі</th></tr>
+  <tr>
+    <td><strong>Random</strong></td>
+    <td>Випадкова атака по всій мережі</td>
+    <td>Рівномірна випадкова вибірка з усіх 270 вузлів. Свіжа вибірка на кожну ітерацію (stratified random sampling).</td>
+  </tr>
+  <tr>
+    <td><strong>Regional</strong></td>
+    <td>Концентрація удару в одному енергорегіоні</td>
+    <td>Вибірка з вузлів одного регіону (West / Central / East / South / North), зважена за degree (більш зв'язні вузли — вища ймовірність).</td>
+  </tr>
+  <tr>
+    <td><strong>Transit Cut</strong></td>
+    <td>Атака на критичні транзитні шини 750 кВ</td>
+    <td>Двофазна вибірка: спочатку ext_grid шини (не більше <code>len(ext_in) − SLACK_RESERVE</code>), залишок — non-ext critical transit. <code>SLACK_RESERVE = 2</code> гарантує мінімум 2 slack-опори для збіжності DC PF.</td>
+  </tr>
+</table>
+
+<h3>3.2. Стан енергосистеми (Grid State)</h3>
+
+<table>
+  <tr><th>Параметр</th><th>Значення</th><th>Ефект</th></tr>
+  <tr>
+    <td><strong>Профіль навантаження</strong></td>
+    <td>Зима (Пікове) / Літо (Номінальне)</td>
+    <td>Масштабує базове навантаження: <strong>winter ×1.15</strong> (~42 GW) / <strong>summer ×0.75</strong> (~31 GW). Формула: <code>stress = profile_factor × load_scaling_factor</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>Автоматика захисту</strong></td>
+    <td>Увімкнено / Вимкнено</td>
+    <td>Вмикає/вимикає АЧР (аварійне частотне розвантаження) та SPS (спеціальну автоматику) у каскадному циклі. При вимкненій автоматиці втрати значно вищі.</td>
+  </tr>
+  <tr>
+    <td><strong>Енергорегіон</strong></td>
+    <td>West / Central / East / South / North</td>
+    <td>Тільки для Regional-профілю. Визначає, у якому регіоні концентрується атака.</td>
+  </tr>
+</table>
+
+<h3>3.3. Розмір атаки (Target Size)</h3>
+
+<table>
+  <tr><th>Параметр</th><th>Опис</th></tr>
+  <tr>
+    <td><strong>Target size (range)</strong></td>
+    <td>Кількість вузлів, що атакуються одночасно. Може бути фіксованою (напр. 5) або діапазоном (напр. 1–10). Діапазон автоматично обчислює кількість ітерацій: <code>max(200, range_width × ITERATIONS_PER_RANGE_UNIT)</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>Максимальна межа</strong></td>
+    <td>Динамічно обмежується зверху залежно від профілю (дані з <code>/network/topology/bounds</code>). Для Transit Cut — менше ніж Random, оскільки пул critical transit вузлів обмежений.</td>
+  </tr>
+</table>
+
+<div class="note">
+  <strong>💡 Приклад:</strong> Regional-атака, 5 цілей, West, Зима, Автоматика Увімкнено —
+  система атакує 5 випадкових вузлів у західному енергорегіоні з піковим зимовим навантаженням
+  і повним набором захисної автоматики. Повторюється 200–500 разів з різними випадковими вибірками.
+</div>
+
+<hr style="border-color: var(--border); margin: 32px 0;">
+
+<!-- ═══════════ 4. Модель даних ═══════════ -->
+<h2 id="data-model">4. Модель даних</h2>
+
+<h3>4.1. Топологія мережі</h3>
 
 <p>Мережа побудована виключно з <strong>відкритих даних</strong> (OpenStreetMap), без доступу до закритих даних Укренерго.</p>
 
@@ -335,132 +497,217 @@
   <div class="metric-card"><div class="label">Сумарне навантаження</div><div class="value">48 650 МВт</div></div>
 </div>
 
-<h3>3.2. Джерела даних</h3>
+<p style="font-size: 0.85rem; color: var(--text-muted);">
+  1 зв'язна компонента (96.8% вузлів). 174 іменовані підстанції, 96 синтетичних.
+  25 генераторів зіставлено з 28 OSINT-джерел (Wikipedia, GEM, ENTSO-E, IEA) — 88% покриття навантаження.
+  Розподіл degree: від d=0 (3 вузли) до d=10 (1 вузол).
+</p>
+
+<h3>4.2. Джерела даних</h3>
 
 <table>
   <tr><th>Джерело</th><th>Що отримуємо</th></tr>
-  <tr><td>OpenStreetMap (Overpass API)</td><td>Підстанції (power=substation), ЛЕП (power=line), генератори</td></tr>
-  <tr><td>Wikipedia, GEM, ENTSO-E, IEA</td><td>Потужності електростанцій (OSINT), 25 із 28 зіставлено</td></tr>
-  <tr><td>CIGRE / Ukrenergo (відкриті)</td><td>Параметри ЛЕП: R, X, C, I_max для 330 кВ і 750 кВ</td></tr>
-  <tr><td>St. Clair formula</td><td>Ефективні ліміти стійкості (max_i_ka_effective) для довгих ліній</td></tr>
+  <tr><td>OpenStreetMap (Overpass API)</td><td>Підстанції (power=substation), ЛЕП (power=line), генератори. 25 регіонів України, паралельні запити.</td></tr>
+  <tr><td>Wikipedia, GEM, ENTSO-E, IEA</td><td>Потужності електростанцій (OSINT), 25 із 28 зіставлено через Haversine spatial matching (10 км радіус)</td></tr>
+  <tr><td>CIGRE / Ukrenergo (відкриті)</td><td>Параметри ЛЕП: R₁=0.033/0.011 Ω/km, X₁=0.32/0.30 Ω/km, I_max=1.65/3.30 kA, SIL=355/2030 MW</td></tr>
+  <tr><td>St. Clair formula</td><td>Ефективні ліміти статичної стійкості (max_i_ka_effective) для довгих ліній: P_SIL × factor × N_circuits, factor=1.5 для L≤80km, 400/L для L>80km</td></tr>
 </table>
 
-<h3>3.3. Пайплайн імпорту (OSM → БД)</h3>
+<h3>4.3. Повний пайплайн імпорту (OSM → БД)</h3>
 
 <ol class="stage-list" style="list-style: none;">
   <li style="padding-left: 48px;">
-    <strong>Запит до Overpass API</strong> — 25 регіонів України, паралельно (Semaphore 2), з кешуванням на диск
+    <strong>import_osm_data</strong> — Overpass API (25 регіонів, Semaphore 2, retries, disk cache) → GridDataParser (екстракція шин/ліній, просторове злиття 500 м, іменне топологічне злиття, дедублікація паралельних ребер) → asyncpg UPSERT
   </li>
   <li style="padding-left: 48px;">
-    <strong>GridDataParser</strong> — екстракція шин (nodes, ways, relations), ліній, генераторів
+    <strong>import_trafos</strong> — 42 автотрансформатори 750/330 кВ (OSM Soviet AT ratings + heuristic fallback, 19 012 MVA total, vk=11%, vkr=0.2%)
   </li>
   <li style="padding-left: 48px;">
-    <strong>Просторове злиття</strong> — Haversine 500 м, іменне злиття, дедублікація паралельних ребер
+    <strong>populate_regions</strong> — призначення енергорегіонів (west/central/east/south/north) на основі географічних меж
   </li>
   <li style="padding-left: 48px;">
-    <strong>St. Clair limits</strong> — ефективні ліміти стійкості для довгих ЛЕП
+    <strong>seed_generators</strong> — 28 OSINT-електростанцій (4 nuclear + 13 thermal + 8 hydro/PSPS), Haversine matching 10 км → 25 зіставлено
+  </li>
+  <li style="padding-left: 48px;">
+    <strong>apply_st_clair_limits</strong> — ефективні ліміти статичної стійкості для довгих ЛЕП (3-tier precedence: max_i_ka_effective → max_i_ka → std_type default)
+  </li>
+  <li style="padding-left: 48px;">
+    <strong>calibrate_physical</strong> — бінарний пошук оптимального thermal_limit_multiplier. Поточне значення: <strong>2.7</strong> (відкалібровано для ≤2 N-0 базових перевантажень)
   </li>
 </ol>
 
+<h3>4.4. Production Armor — захист від неякісних даних</h3>
+
+<p>
+  При побудові pandapower-мережі кожна ЛЕП проходить <strong>5 захисних фільтрів</strong> —
+  «нульова довіра» до даних із БД. Якщо параметр відсутній, NaN або фізично неможливий —
+  застосовується безпечний fallback замість падіння симуляції.
+</p>
+
+<table>
+  <tr><th>Фільтр</th><th>Умова спрацювання</th><th>Fallback</th></tr>
+  <tr><td>M2 Impedance</td><td>r/x ≤ 0.001, None, NaN, Inf</td><td>R=0.01, X=0.05 Ω/km</td></tr>
+  <tr><td>Thermal Limit</td><td>max_i_ka + effective обидва None/0/NaN/Inf</td><td>NaN (лінія невидима для overload detection)</td></tr>
+  <tr><td>M3 Circuits</td><td>n_circuits < 1, None, NaN, Inf</td><td>1</td></tr>
+  <tr><td>Capacitance</td><td>c_nf_per_km = None, NaN, Inf</td><td>0.0</td></tr>
+  <tr><td>Length</td><td>length_km = None, NaN, Inf</td><td>1.0</td></tr>
+</table>
+
+<p style="font-size: 0.85rem; color: var(--text-muted);">
+  NaN/Inf захист: <code>_safe_float()</code> з <code>math.isfinite()</code> + TypeError/ValueError/OverflowError.
+  Спрацювання фільтра логується як <code>[PRODUCTION ARMOR]</code> warning.
+</p>
+
+<div class="warning">
+  <strong>⚠️ Важливо:</strong> Дані OSM імпортовано станом на момент останнього <code>make import-osm</code>.
+  Топологія може не відображати поточний стан мережі (пошкоджені/відновлені лінії після обстрілів).
+</div>
+
 <hr style="border-color: var(--border); margin: 32px 0;">
 
-<h2 id="simulation">4. Симуляційний пайплайн</h2>
+<!-- ═══════════ 5. Симуляційний пайплайн ═══════════ -->
+<h2 id="simulation">5. Симуляційний пайплайн</h2>
 
 <p>
   Ядро симуляції — <strong>фізичний розрахунок потокорозподілу</strong> (DC Power Flow) через бібліотеку pandapower.
   На відміну від топологічних симуляторів, які працюють лише зі структурою графа, фізичний симулятор:
 </p>
 <ul style="color: var(--text-muted); padding-left: 24px; margin-bottom: 16px;">
-  <li>Розраховує перетоки потужності згідно із законами Кірхгофа</li>
-  <li>Виявляє фізичні перевантаження (I > I_max)</li>
-  <li>Детектує енергоострови через graph connectivity</li>
-  <li>Оцінює системний блекаут за MW-втратами</li>
+  <li>Розраховує перетоки потужності згідно із законами Кірхгофа (P = Bθ)</li>
+  <li>Виявляє фізичні перевантаження (I > I_max, loading_percent > 100%)</li>
+  <li>Детектує енергоострови через graph connectivity (NetworkX)</li>
+  <li>Оцінює системний блекаут за MW-втратами (≥20% навантаження)</li>
 </ul>
 
-<p style="color: var(--green);">Продуктивність: ~500 ітерацій Монте-Карло з DC Power Flow на кожній — за 2 секунди.</p>
+<p style="color: var(--green);">Продуктивність: ~500 ітерацій Монте-Карло з DC Power Flow на кожній — за 2 секунди (in-place reset + pandapower recycle).</p>
 
-<h3>4.1. Етапи однієї ітерації Монте-Карло</h3>
+<h3>5.1. Етапи однієї ітерації Монте-Карло</h3>
 
 <div class="diagram">
 <span class="dim">Кожна ітерація (N × target_size):</span>
 
 <span class="or">① Первинний удар</span> (Primary Strike)
-   Відключення N випадкових вузлів (або заданих сценарієм).
-   Профілі: random, regional (один енергорегіон), transit_cut (critical transit 750 кВ).
+   Відключення N випадкових вузлів. Профілі: random, regional, transit_cut.
+   Gaussian шум навантаження: кожен вузол отримує незалежну пертурбацію
+   P_real = max(0.1, P_default × N(μ=1.0, σ=0.25)) — створює природні
+   гарячі/холодні зони та запобігає математичній симетрії (cliff effect).
 
 <span class="hl">② DC Power Flow</span> (pandapower)
-   Розрахунок потокорозподілу: P = Bθ.
-   Distributed slack: 3 ext_grid на топ-3 шинах 750 кВ.
+   Розрахунок потокорозподілу: P = Bθ (лінеаризований метод Ньютона).
+   <span class="or">Distributed Slack:</span> 3 ext_grid на топ-3 шинах 750 кВ
+   (за наявністю генерації, потім за degree).
+   <span class="or">SLACK_RESERVE = 2:</span> мінімум 2 slack-опори завжди
+   залишаються недоторканими — гарантія збіжності DC PF.
 
 <span class="or">③ Каскад перевантажень</span> (≤8 хвиль)
-   a. <span class="hl">SAON</span> — автоматика обмеження навантаження (≥115% loading)
-      → пропорційний скид cat3 → cat2, з урахуванням автотрансформаторів
+   a. <span class="hl">SAON</span> — автоматика обмеження навантаження (≥105% loading)
+      → пропорційний скид cat3 → cat2, per-bus MAX overload (не sum),
+      з урахуванням автотрансформаторів (step-down trafo lookup),
+      5% safety margin. ≤5 passes (MAX_SAON_PASSES).
    b. DC Power Flow перерахунок
-   c. <span class="rd">Детекція перевантажень</span> — P=min(0.95, (load%/100−1)×2.0)
+   c. <span class="rd">Детекція перевантажень</span> — P = min(0.95, (load%/100−1)×2.0)
+      Векторизовано: бінарна маска Pandas + numpy-розрахунок
+      (8–10 мс замість ~35 мс на ітерацію)
    d. Trip overloaded lines → перерахунок
 
 <span class="or">④ Детекція енергоостровів</span> (Island Detection)
-   NetworkX connected components.
-   Main grid = усі компоненти з ext_grid.
+   NetworkX connected components (include_trafos=True).
+   Main grid = усі компоненти, що містять ext_grid.
+   Fallback: max за generation potential, не за кількістю вузлів.
 
-<span class="or">⑤ АЧР</span> (Аварійне Частотне Розвантаження)
-   3-стадійний скид навантаження в дефіцитних островах (cat3 → cat2 → collapse).
+<span class="or">⑤ Hybrid Island Management</span> (Level 2, feature flag)
+   <span class="gr">Slack Island:</span> містить ext_grid → skip (PF зійдеться сам).
+   <span class="gr">Generator Island:</span> без ext_grid, з sgen → auto-create ext_grid.
+   <span class="gr">Passive Island:</span> без ext_grid і без sgen → load shed перед PF.
+   SPS (Special Protection Scheme): дефіцит → АЧР, профіцит → САОН.
 
-<span class="or">⑥ Оцінка блекауту</span> (Blackout Evaluation)
+<span class="or">⑥ АЧР</span> (Аварійне Частотне Розвантаження, legacy)
+   3-стадійний скид навантаження в дефіцитних островах
+   (cat3 → cat2 → collapse). Використовується коли
+   FEATURE_ISLANDING_PHYSICS = false.
+
+<span class="or">⑦ Оцінка блекауту</span> (Blackout Evaluation)
    Втрата ≥20% MW-зваженого навантаження = системний блекаут.
    lost_mw = raw_lost − shed_achr − shed_saon (без double-counting).
+   Якщо DC PF не зійшовся → is_collapsed = true автоматично.
 </div>
 
-<h3>4.2. Види симуляцій</h3>
+<h3>5.2. Види симуляцій</h3>
 
 <table>
-  <tr><th>Тип</th><th>Опис</th><th>Швидкість</th></tr>
+  <tr><th>Тип</th><th>Endpoint</th><th>Опис</th><th>Швидкість</th></tr>
   <tr>
-    <td><strong>Monte Carlo</strong></td>
-    <td>N ітерацій з випадковими цілями. Основний режим аналізу вразливостей.</td>
-    <td>~500 ітерацій / 2 сек</td>
+    <td><strong>Monte Carlo (V2 SSE)</strong></td>
+    <td><code>POST /api/v2/simulation/stream</code></td>
+    <td>Потокова симуляція з per-iteration подіями через Server-Sent Events. <strong>Основний режим.</strong></td>
+    <td>~250 ітер/сек, real-time</td>
   </tr>
   <tr>
-    <td><strong>Deterministic Flow</strong></td>
-    <td>Однократний DC PF без атак. N-0 теплова карта, баланс потужності.</td>
-    <td>~10 мс</td>
+    <td><strong>Monte Carlo (V1 sync)</strong></td>
+    <td><code>POST /api/v1/simulation/monte-carlo</code></td>
+    <td>Синхронний Монте-Карло. Повертає session_id після завершення.</td>
+    <td>~500 ітер / 2 сек</td>
   </tr>
   <tr>
     <td><strong>Background (async)</strong></td>
-    <td>Фонова симуляція з відстеженням прогресу через task_id.</td>
+    <td><code>POST /api/v1/simulation/start</code></td>
+    <td>Фонова симуляція з відстеженням прогресу через task_id. 202 Accepted.</td>
     <td>залежить від обсягу</td>
   </tr>
   <tr>
-    <td><strong>SSE Stream (V2)</strong></td>
-    <td>Потокова симуляція з per-iteration подіями через Server-Sent Events.</td>
-    <td>real-time</td>
+    <td><strong>Deterministic Flow</strong></td>
+    <td><code>POST /api/v1/simulation/deterministic-flow</code></td>
+    <td>Однократний DC PF без атак. N-0 теплова карта, баланс потужності.</td>
+    <td>~10 мс</td>
   </tr>
 </table>
 
-<h3>4.3. Ключові фізичні константи</h3>
+<h3>5.3. Побудова pandapower-мережі</h3>
+
+<table>
+  <tr><th>pandapower Table</th><th>К-сть</th><th>Опис</th></tr>
+  <tr><td>bus</td><td>279</td><td>vn_kv, name, geodata</td></tr>
+  <tr><td>line</td><td>462</td><td>from_bus, to_bus, length_km, std_type (330kV_OHL / 750kV_OHL)</td></tr>
+  <tr><td>load</td><td>254</td><td>p_mw (з Gaussian noise), q_mvar=0</td></tr>
+  <tr><td>sgen</td><td>25</td><td>Static generators (p_mw з OSINT)</td></tr>
+  <tr><td>ext_grid</td><td>3</td><td>Slack buses — топ-3 × 750 кВ (Distributed Slack)</td></tr>
+  <tr><td>trafo</td><td>42</td><td>750/330 кВ автотрансформатори (vk=11%, vkr=0.2%)</td></tr>
+  <tr><td>std_types</td><td>2</td><td>330kV_OHL (2×ACSR-400/51), 750kV_OHL (4×ACSR-330/43)</td></tr>
+</table>
+
+<h3>5.4. Ключові фізичні константи</h3>
 
 <table>
   <tr><th>Константа</th><th>Значення</th><th>Призначення</th></tr>
-  <tr><td>OVERLOAD_MIN_PERCENT</td><td>100%</td><td>Поріг перевантаження для каскаду</td></tr>
-  <tr><td>OVERLOAD_MAX_PROB</td><td>0.95</td><td>Максимальна ймовірність відмови</td></tr>
+  <tr><td>OVERLOAD_MIN_PERCENT</td><td>100%</td><td>Поріг перевантаження для cascade</td></tr>
+  <tr><td>SAON_OVERLOAD_PERCENT</td><td>105%</td><td>Поріг спрацювання САОН</td></tr>
+  <tr><td>OVERLOAD_MAX_PROB</td><td>0.95</td><td>Максимальна ймовірність відмови лінії</td></tr>
   <tr><td>OVERLOAD_SLOPE</td><td>2.0</td><td>P = (load%/100 − 1) × slope</td></tr>
   <tr><td>MAX_OVERLOAD_WAVES</td><td>8</td><td>Максимум хвиль каскаду перевантажень</td></tr>
+  <tr><td>MAX_SAON_PASSES</td><td>5</td><td>Максимум проходів САОН за один каскад (було 2, збільшено для покриття)</td></tr>
+  <tr><td>SAON_SAFETY_MARGIN</td><td>1.05</td><td>5% запас при пропорційному скиді (компенсація measurement noise)</td></tr>
   <tr><td>COLLAPSE_THRESHOLD</td><td>20%</td><td>≥20% втрати MW = системний блекаут</td></tr>
-  <tr><td>LOAD_NOISE_SIGMA</td><td>0.25</td><td>Gaussian perturbation навантаження (25% σ)</td></tr>
-  <tr><td>THERMAL_MULTIPLIER</td><td>2.7</td><td>Калібрування thermal limit (Production Armor)</td></tr>
+  <tr><td>LOAD_NOISE_SIGMA</td><td>0.25</td><td>Gaussian perturbation навантаження (σ=25% від P_default)</td></tr>
+  <tr><td>PROFILE_FACTORS</td><td>winter=1.15, summer=0.75</td><td>Сезонні множники навантаження</td></tr>
+  <tr><td>THERMAL_MULTIPLIER</td><td>2.7</td><td>Калібрування thermal limit — множить max_i_ka</td></tr>
+  <tr><td>IMPEDANCE_MULTIPLIER</td><td>0.25</td><td>Глобальне калібрування R/X (Kirchhoff invariant — не впливає на flows, лише на втрати)</td></tr>
+  <tr><td>SLACK_COUNT / SLACK_RESERVE</td><td>3 / 2</td><td>Кількість ext_grid / мінімальний резерв slack-шин при атаці</td></tr>
+  <tr><td>CHUNK_SIZE</td><td>2500</td><td>Розмір bulk INSERT (asyncpg: 32767/13cols ≈ 2520)</td></tr>
+  <tr><td>FEATURE_ISLANDING_PHYSICS</td><td>false (env)</td><td>Level 2 hybrid island management (default off)</td></tr>
 </table>
 
 <div class="note">
-  <strong>⚠️ Важливо:</strong> Система використовує <strong>сезонні профілі навантаження</strong>:
-  winter (×1.15, ~42 GW) та summer (×0.75, ~31 GW). Gaussian шум (σ=0.25) на кожному вузлі створює
-  природну варіативність і запобігає математичній симетрії (cliff effect).
+  <strong>⚠️ Чому Gaussian noise критичний:</strong> Без нього рівномірне навантаження (150 MW на кожну шину 330 кВ)
+  створює математичну симетрію → система bistable: 0% або 100% блекаутів, без плавного діапазону.
+  Це відомо як <strong>cliff effect</strong>. Gaussian noise σ=0.25 відновлює природну варіативність.
 </div>
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
-<h2 id="analytics">5. Аналітика та метрики</h2>
+<!-- ═══════════ 6. Аналітика та метрики ═══════════ -->
+<h2 id="analytics">6. Аналітика та метрики</h2>
 
-<h3>5.1. Pareto-ранжування</h3>
+<h3>6.1. Pareto-ранжування</h3>
 
 <p>
   <strong>Pareto ranking</strong> — визначення найкритичніших елементів мережі.
@@ -469,13 +716,14 @@
 
 <p>Ключові принципи:</p>
 <ul style="color: var(--text-muted); padding-left: 24px; margin-bottom: 16px;">
-  <li><strong>Ghost Filter</strong> — виключення ізольованих вузлів (degree ≤ 1) та синтетичних імен</li>
-  <li><strong>avg_ens_mw</strong> — середні втрати MW, спричинені <em>атакою на цей вузол</em> (causal isolation), не кореляцією</li>
-  <li><strong>Betweenness centrality</strong> — теоретична важливість у графі, запобігає домінуванню термінальних вузлів</li>
-  <li><strong>Cohort filter</strong> — за замовчуванням лише поточний calibration cohort (thermal=2.7, impedance=0.25)</li>
+  <li><strong>Ghost Filter</strong> — подвійне виключення: degree ≤ 1 (термінальні вузли — вічні жертви BFS, не тригери) + синтетичні імена (<code>Bus_*</code>, <code>КТП*</code>)</li>
+  <li><strong>avg_ens_mw — causal isolation</strong> — середні MW втрат, обчислені <em>тільки від targeted_buses</em> (вузлів, які безпосередньо атакували), а не від cascade_failed_buses (кореляція). Buses, які ніколи не були ціллю, мають avg_ens_mw = NULL. Це виправляє Bug #10: без causal isolation топ-5 вузлів показували ідентичні ~9 900 MW.</li>
+  <li><strong>Betweenness centrality</strong> — теоретична важливість у графі (NetworkX). Запобігає домінуванню термінальних вузлів із високою isolation_frequency, але нульовою structural importance.</li>
+  <li><strong>Cohort filter</strong> — за замовчуванням лише поточний calibration cohort (thermal=2.7, impedance=0.25). Legacy (1.0/1.0) та all — явний opt-in.</li>
+  <li><strong>SQL LIMIT ×3 → Python re-rank</strong> — SQL витягує втричі більше кандидатів, Python перераховує composite_score і обрізає до топ-N. Виправляє ситуацію, коли LIMIT 10 залишав лише 10 кандидатів для переранжування.</li>
 </ul>
 
-<h3>5.2. Pareto-frontier</h3>
+<h3>6.2. Pareto-frontier</h3>
 
 <p>
   <strong>Недомінований фронт</strong> — trade-off між вартістю захисту (кількість цілей)
@@ -485,136 +733,199 @@
 
 <div class="note">
   Поточний тип фронту: <strong>"gradual"</strong> — немає єдиної точки відмови (single point of failure).
-  Максимальні втрати: 15 900 МВт (32.7% загального навантаження).
+  Максимальні втрати: 15 900 МВт (32.7% загального навантаження). Усі блекаути — thermal/St.Clair trigger → cascade → topology fragmentation. Нуль чисто топологічних блекаутів.
 </div>
 
-<h3>5.3. Метрики, що відображаються</h3>
+<h3>6.3. Аналітичні ендпоінти</h3>
+
+<table>
+  <tr><th>Endpoint</th><th>Що повертає</th><th>Де використовується</th></tr>
+  <tr><td><code>GET /analytics/pareto</code></td><td>top_critical_buses[] + top_critical_lines[]</td><td>Таблиці критичних вузлів/ліній у консолі</td></tr>
+  <tr><td><code>GET /analytics/pareto-frontier</code></td><td>frontier_points[] (cost, avg_lost_mw, blackout_rate, CI)</td><td>S-Curve chart</td></tr>
+  <tr><td><code>GET /analytics/waterfall</code></td><td>Декомпозиція втрат: n0_load → −АЧР → −САОН → −ізоляція → залишок</td><td>Waterfall chart</td></tr>
+  <tr><td><code>GET /analytics/overloaded-lines</code></td><td>lines[] (loading_percent, event_count)</td><td>Таблиця перевантажених ЛЕП</td></tr>
+  <tr><td><code>GET /simulation/sessions</code></td><td>Список сесій з blackout_rate, islanding-метриками</td><td>Session history dropdown</td></tr>
+  <tr><td><code>GET /simulation/session/{id}/cascade</code></td><td>failed_buses[], failed_lines[], overloaded_lines[]</td><td>Карта в режимі симуляції</td></tr>
+</table>
+
+<h3>6.4. Повна таблиця метрик</h3>
 
 <table>
   <tr><th>Метрика</th><th>Опис</th><th>Де показано</th></tr>
-  <tr><td><strong>isolation_frequency</strong></td><td>Як часто вузол опинявся в ізольованому острові під час блекауту</td><td>Pareto-таблиця</td></tr>
-  <tr><td><strong>avg_ens_mw</strong></td><td>Середні MW втрат при атаці саме на цей вузол</td><td>Pareto-таблиця</td></tr>
+  <tr><td><strong>isolation_frequency</strong></td><td>Як часто вузол опинявся в ізольованому острові під час блекауту</td><td>Pareto-таблиця, popup вузла</td></tr>
+  <tr><td><strong>avg_ens_mw</strong></td><td>Середні MW втрат при атаці саме на цей вузол (causal, не correlation)</td><td>Pareto-таблиця</td></tr>
   <tr><td><strong>composite_score</strong></td><td>isolation_frequency × betweenness_centrality</td><td>Pareto-таблиця (сортування)</td></tr>
   <tr><td><strong>collapse_ratio</strong></td><td>Частка ітерацій з блекаутом при атаці на вузол</td><td>Pareto-таблиця</td></tr>
-  <tr><td><strong>avg_loading_percent</strong></td><td>Середній % завантаження ЛЕП (з overload_events)</td><td>Pareto-таблиця (лінії)</td></tr>
-  <tr><td><strong>criticality_type</strong></td><td>OVERLOAD (thermal), ST_CLAIR (static stability), ISOLATION (topological)</td><td>Pareto-таблиця (badge)</td></tr>
+  <tr><td><strong>avg_impact_mw</strong></td><td>Середні втрати MW (weighted)</td><td>Pareto-таблиця, popup вузла</td></tr>
+  <tr><td><strong>avg_achr_mw</strong></td><td>Середній обсяг АЧР (MW)</td><td>Pareto-таблиця, popup вузла, Waterfall</td></tr>
+  <tr><td><strong>avg_saon_mw</strong></td><td>Середній обсяг САОН (MW)</td><td>Pareto-таблиця, popup вузла, Waterfall</td></tr>
+  <tr><td><strong>avg_loading_percent</strong></td><td>Середній % завантаження ЛЕП (з overload_events)</td><td>Pareto-таблиця (лінії), tooltip ЛЕП</td></tr>
+  <tr><td><strong>criticality_type</strong></td><td>OVERLOAD (thermal), ST_CLAIR (static stability), ISOLATION (topological)</td><td>Pareto-таблиця (badge), tooltip ЛЕП</td></tr>
   <tr><td><strong>lost_mw</strong></td><td>MW втрат за ітерацію</td><td>Simulation logs, S-Curve</td></tr>
   <tr><td><strong>loss_ratio</strong></td><td>Частка втрат від загального навантаження</td><td>Simulation logs</td></tr>
-  <tr><td><strong>blackout_rate</strong></td><td>% ітерацій з блекаутом для заданого target_size</td><td>S-Curve, Pareto-frontier</td></tr>
-  <tr><td><strong>shedded_mw_achr</strong></td><td>MW, скинуті автоматикою частотного розвантаження</td><td>Waterfall chart</td></tr>
-  <tr><td><strong>shedded_mw_saon</strong></td><td>MW, скинуті автоматикою обмеження навантаження</td><td>Waterfall chart</td></tr>
+  <tr><td><strong>blackout_rate</strong></td><td>% ітерацій з блекаутом для заданого target_size</td><td>S-Curve, Pareto-frontier, SessionHistory</td></tr>
   <tr><td><strong>total_load_mw</strong></td><td>Сумарне навантаження мережі (з урахуванням профілю)</td><td>Power Balance Overlay</td></tr>
   <tr><td><strong>served_load_mw</strong></td><td>Фактично обслужене навантаження після DC PF</td><td>Power Balance Overlay</td></tr>
+  <tr><td><strong>total_generation_mw</strong></td><td>Сумарна генерація (without noise)</td><td>Power Balance Overlay</td></tr>
+  <tr><td><strong>total_islands_avg</strong></td><td>Середня кількість енергоостровів за ітерацію (>1 = system split)</td><td>Islanding KPI card</td></tr>
+  <tr><td><strong>collapsed_islands_avg</strong></td><td>Середня кількість «мертвих» островів без генерації</td><td>Islanding KPI card</td></tr>
+  <tr><td><strong>shedded_mw_automated</strong></td><td>Сумарний скид автоматикою (АЧР + САОН + SPS), MW</td><td>Islanding KPI card</td></tr>
 </table>
 
-<h3>5.4. Візуалізація (Apache ECharts)</h3>
+<h3>6.5. Візуалізація (Apache ECharts)</h3>
 
 <table>
   <tr><th>Графік</th><th>Що показує</th></tr>
-  <tr><td><strong>S-Curve</strong></td><td>Dual Y-axis: avg_lost_mw (МВт) + blackout_rate (%) за target_size. З dataZoom-слайдером і brush-виділенням для крос-фільтрації.</td></tr>
-  <tr><td><strong>Waterfall</strong></td><td>Декомпозиція втрат: Базове навантаження → −АЧР → −САОН → −Ізоляція → Залишкове навантаження.</td></tr>
+  <tr><td><strong>S-Curve</strong></td><td>Dual Y-axis: avg_lost_mw (МВт, line + CI band) + blackout_rate (%, bars) за target_size. DataZoom-слайдер + brush-виділення для крос-фільтрації Waterfall.</td></tr>
+  <tr><td><strong>Waterfall</strong></td><td>Декомпозиція втрат: Базове навантаження → −АЧР → −САОН → −Ізоляція → Залишкове. Фільтрується за виділеним діапазоном attack size з S-Curve.</td></tr>
 </table>
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
-<h2 id="ui">6. Інтерфейс користувача</h2>
+<!-- ═══════════ 7. Інтерфейс користувача ═══════════ -->
+<h2 id="ui">7. Інтерфейс користувача</h2>
 
-<h3>6.1. Основні компоненти</h3>
+<p>
+  SPA (Single Page Application). <strong>Увесь UI — українською мовою.</strong>
+  Resizable layout: 58% карта (ліворуч) + 42% аналітична панель (праворуч, можна згорнути).
+</p>
+
+<h3>7.1. Основні компоненти</h3>
 
 <table>
   <tr><th>Компонент</th><th>Призначення</th></tr>
-  <tr><td><strong>Інтерактивна карта</strong> (Leaflet)</td><td>ГІС-візуалізація мережі: 270 вузлів, 350 ЛЕП. Два режими: topology (фізичний граф) та simulation (каскад/перевантаження).</td></tr>
-  <tr><td><strong>N-0 Heatmap</strong></td><td>Теплова карта нормального режиму: завантаження ЛЕП без атак (кольорові band'и: &lt;50%, 50-69%, 70-89%, 90-99%, ≥100%).</td></tr>
-  <tr><td><strong>Power Balance Overlay</strong></td><td>Баланс потужності: генерація, навантаження, обслужене, втрачене (MW).</td></tr>
-  <tr><td><strong>Симуляційна консоль</strong></td><td>Запуск Монте-Карло: target_size (або діапазон), attack_profile, кількість ітерацій.</td></tr>
-  <tr><td><strong>Pareto-таблиці</strong></td><td>Топ-N критичних вузлів і ЛЕП з сортуванням, кольоровими badge'ами (OVERLOAD/ST_CLAIR/ISOLATION).</td></tr>
-  <tr><td><strong>S-Curve + Waterfall</strong></td><td>Інтерактивні графіки ECharts з крос-фільтрацією (brush-виділення на S-Curve фільтрує Waterfall).</td></tr>
+  <tr><td><strong>Інтерактивна карта</strong> (Leaflet)</td><td>ГІС-візуалізація мережі: 270 вузлів, 350 ЛЕП. Два режими: topology (фізичний граф, strike-цілі, halos компонентів) та simulation (каскад/перевантаження, heatmap, critical bus halos).</td></tr>
+  <tr><td><strong>N-0 Heatmap</strong></td><td>Теплова карта нормального режиму: завантаження ЛЕП без атак. Кольорові band'и: &lt;50%, 50–69%, 70–89%, 90–99%, ≥100%.</td></tr>
+  <tr><td><strong>Power Balance Overlay</strong></td><td>Баланс потужності (картка зліва внизу): генерація, навантаження, обслужене, втрачене (MW). Контекст: N-0 або результат симуляції.</td></tr>
+  <tr><td><strong>Легенда карти</strong></td><td>10 toggle-шарів: 750/330 кВ лінії, цілі удару, cascade failures, критичні вузли, перевантажені ЛЕП, теплова карта, severity scale.</td></tr>
+  <tr><td><strong>Перемикач тем</strong></td><td>Dark/Light — синхронізовано з Leaflet tiles, ECharts темами, Tailwind.</td></tr>
+  <tr><td><strong>Симуляційна консоль</strong></td><td>SessionHistory (останні 5 сесій), GridStateControls (профіль навантаження, автоматика), ThreatVectorControls (сценарій, регіон, target_size range), кнопка запуску.</td></tr>
+  <tr><td><strong>Прогрес-бар</strong></td><td>current/total ітерацій, відсоток, ETA в секундах. Показується під час симуляції.</td></tr>
+  <tr><td><strong>SessionParamsSummary</strong></td><td>Read-only картка з параметрами поточної сесії (профіль, автоматика, сценарій, target_size).</td></tr>
+  <tr><td><strong>IslandingStats</strong></td><td>3 KPI-картки: острови (avg), мертві субграфи (collapsed), скинуто автоматикою (MW).</td></tr>
+  <tr><td><strong>Pareto-таблиці</strong></td><td>Топ-N критичних вузлів (АЧР, САОН, ізоляція, втрати) і ЛЕП (дві вкладки: перевантажені + каскадні). Сортування, кольорові badge'и (OVERLOAD/ST_CLAIR/ISOLATION).</td></tr>
+  <tr><td><strong>S-Curve + Waterfall</strong></td><td>Інтерактивні графіки ECharts з крос-фільтрацією (brush на S-Curve → Waterfall).</td></tr>
 </table>
 
-<h3>6.2. Режими карти</h3>
+<h3>7.2. Режими карти</h3>
 
 <table>
   <tr><th>Режим</th><th>Що показує</th></tr>
   <tr><td><strong>Topology</strong></td><td>Фізичний граф мережі, вибрані strike-цілі, halos ізольованих компонентів</td></tr>
-  <tr><td><strong>Simulation</strong></td><td>Стилізація каскаду/перевантажень, теплова карта N-0, halos критичних вузлів, popup з метриками симуляції</td></tr>
+  <tr><td><strong>Simulation</strong></td><td>Стилізація каскаду/перевантажень, теплова карта N-0, halos критичних вузлів, popup з метриками симуляції (Ізоляція, АЧР, САОН, Втрати)</td></tr>
 </table>
-
-<h3>6.3. Popup вузла (режим симуляції)</h3>
-
-<p>При кліку на вузол у режимі симуляції показується агрегована статистика:</p>
-<ul style="color: var(--text-muted); padding-left: 24px; margin-bottom: 16px;">
-  <li><strong>Ізоляція</strong> — частота потрапляння в енергоострів</li>
-  <li><strong>АЧР</strong> — обсяг аварійного частотного розвантаження (MW)</li>
-  <li><strong>САОН</strong> — обсяг автоматики обмеження навантаження (MW)</li>
-  <li><strong>Втрати</strong> — загальні втрати MW</li>
-</ul>
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
-<h2 id="ai-copilot">7. AI Copilot (Агент-аналітик)</h2>
+<!-- ═══════════ 8. AI Copilot ═══════════ -->
+<h2 id="ai-copilot">8. AI Copilot (Агент-аналітик)</h2>
 
 <p>
   Вбудований AI-асистент на базі <strong>LangGraph</strong> (Supervisor-Worker архітектура),
   який приймає запити природною мовою (українською), запускає симуляції та повертає аналітику.
 </p>
 
-<h3>7.1. Архітектура агента</h3>
+<h3>8.1. Архітектура агента</h3>
 
 <div class="diagram">
 <span class="dim">Користувач: "Які 3 підстанції найкритичніші?"</span>
                        <span class="dim">▼</span>
 <span class="or">Supervisor</span> (gpt-4o-mini, без інструментів)
    <span class="dim">├── route "topology" →</span> <span class="hl">Topology Worker</span> (5 tools)
-   <span class="dim">│</span>   get_grid_topological_summary, get_pareto_ranking,
-   <span class="dim">│</span>   get_pareto_frontier, get_recent_simulations,
-   <span class="dim">│</span>   get_grid_physical_summary
+   <span class="dim">│</span>   get_grid_topological_summary, get_grid_physical_summary,
+   <span class="dim">│</span>   get_pareto_ranking, get_pareto_frontier,
+   <span class="dim">│</span>   get_recent_simulations
    <span class="dim">├── route "physics"  →</span> <span class="gr">Physics Worker</span> (2 tools)
    <span class="dim">│</span>   run_monte_carlo_simulation, run_deterministic_flow
-   <span class="dim">└── route "finish"   →</span> produce final answer
+   <span class="dim">└── route "finish"   →</span> produce final answer (Markdown)
 </div>
 
-<h3>7.2. Можливості агента</h3>
+<p style="font-size: 0.85rem; color: var(--text-muted);">
+  <strong>Tool Isolation:</strong> Supervisor не має доступу до інструментів — тільки routing.
+  Worker'и мають жорстко ізольовані набори інструментів.
+  Максимум 3 виклики worker'ів на запит (anti-loop guard).
+</p>
+
+<h3>8.2. SSE-протокол (endpoint: <code>POST /analytics/agent/chat/multi-stream</code>)</h3>
+
+<table>
+  <tr><th>SSE Event</th><th>Data</th><th>Опис</th></tr>
+  <tr><td><code>agent_transition</code></td><td>{active_agent, status}</td><td>Перемикання між worker'ами</td></tr>
+  <tr><td><code>agent_thought</code></td><td>{token}</td><td>Внутрішні міркування worker'а (потоково)</td></tr>
+  <tr><td><code>token</code></td><td>{content}</td><td>Фінальна відповідь (Markdown, потоково)</td></tr>
+  <tr><td><code>tool</code></td><td>{tool, args, status}</td><td>Виклик інструменту (start/end)</td></tr>
+  <tr><td><code>done</code></td><td>{}</td><td>Потік завершено</td></tr>
+  <tr><td><code>error</code></td><td>{message}</td><td>Невідновна помилка</td></tr>
+</table>
+
+<h3>8.3. Можливості та обмеження</h3>
 
 <ul style="color: var(--text-muted); padding-left: 24px; margin-bottom: 16px;">
-  <li>Запити природною мовою українською</li>
-  <li>Автоматичний запуск Монте-Карло та deterministic flow</li>
+  <li>Запити природною мовою українською (system prompt — 14 рядків, 9 базових правил)</li>
+  <li>Автоматичний запуск Монте-Карло (до 500 ітерацій) та deterministic flow</li>
   <li>Аналіз Pareto-рейтингу та Pareto-frontier</li>
-  <li>Відповіді зрозумілими іменами (без технічних ID)</li>
-  <li>Persistent checkpointer — контекст зберігається між перезапусками бекенду</li>
-  <li>Ліміт 6 симуляцій на запит, максимум 3 виклики worker'ів</li>
+  <li>Відповіді зрозумілими іменами (без технічних ID — заборонено system prompt)</li>
+  <li>Persistent checkpointer (SQLAlchemySaver) — контекст зберігається між перезапусками бекенду через PostgreSQL</li>
+  <li>Ліміт: 6 симуляцій на запит, максимум 3 виклики worker'ів (anti-loop guard)</li>
+  <li>Request-scoped semaphore: до 2 concurrent симуляцій, інші tool calls ізольовані</li>
+  <li>Заборона галюцинацій: «Never invent loading/generation values — use tools first»</li>
+  <li>Семантична термінологія: розрізняє «burnt from overload» vs «de-energised from islanding»</li>
 </ul>
 
 <div class="note">
-  <strong>AI WarRoom</strong> — окрема колапсована консоль у фронтенді, що показує
-  внутрішні міркування агента (agent_thought), перемикання між worker'ами
-  (agent_transition) та виклики інструментів у реальному часі.
+  <strong>AI Agent Thought Stream:</strong> У чаті AI Copilot показуються бейджі викликаних інструментів
+  (Topology Worker, Physics Worker) та їх статус. Внутрішні міркування worker'ів (agent_thought)
+  відображаються в окремому потоці.
 </div>
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
-<h2 id="demo-summary">8. Резюме для демо</h2>
+<!-- ═══════════ 9. Відомі обмеження ═══════════ -->
+<h2 id="limitations">9. Відомі обмеження</h2>
 
-<h3>Що показуємо (типовий demo flow):</h3>
+<table>
+  <tr><th>Обмеження</th><th>Вплив</th></tr>
+  <tr><td><strong>DC PF ігнорує Q та V</strong></td><td>Voltage collapse (~40% механізмів EHV) не моделюється. DC похибка 1–3% для 750 кВ (R/X=0.037). Достатньо для ранжування вразливостей, недостатньо для оперативного диспетчерського управління.</td></tr>
+  <tr><td><strong>Однакові параметри ЛЕП</strong></td><td>Усі 330 кВ лінії мають ідентичні R/X/C/I_max. У реальності параметри залежать від перерізу проводу, кількості ланцюгів, температури.</td></tr>
+  <tr><td><strong>Немає моделей захисту</strong></td><td>Відсутні АВР (автоматичне введення резерву), АЧР-СП (спеціальна черга), пристрої РЗА. Це збільшує cascade impact порівняно з реальною мережею.</td></tr>
+  <tr><td><strong>Немає імпорту/експорту</strong></td><td>Cross-border flows ENTSO-E не моделюються. Мережа розглядається як ізольована.</td></tr>
+  <tr><td><strong>37% синтетичних імен</strong></td><td>96 із 270 вузлів мають ім'я <code>Bus_XXXX</code> замість реальної назви підстанції.</td></tr>
+  <tr><td><strong>SAON magnitude</strong></td><td>~8 GW середній скид на міжвольтних лініях через ring topology degree ~2.1 і перерозподіл потоків — вище за реальні обсяги САОН.</td></tr>
+  <tr><td><strong>Генерація < навантаження</strong></td><td>42 912 MW генерації покриває 88% від 48 650 MW навантаження. Дефіцит — наслідок відсутності даних про малі електростанції.</td></tr>
+  <tr><td><strong>Актуальність топології</strong></td><td>Дані OSM імпортовані на момент останнього <code>make import-osm</code>. Пошкоджені/відновлені лінії після обстрілів не відображені.</td></tr>
+</table>
+
+<hr style="border-color: var(--border); margin: 32px 0;">
+
+<!-- ═══════════ 10. Резюме для демо ═══════════ -->
+<h2 id="demo-summary">10. Резюме для демо</h2>
+
+<h3>Типовий demo flow:</h3>
 
 <ol class="stage-list" style="list-style: none;">
   <li style="padding-left: 48px;">
     <strong>N-0 Heatmap</strong> — нормальний режим мережі: теплова карта завантаження ЛЕП, баланс потужності.
     Демонструє, що модель фізично достовірна і «жива».
+    <br><span style="font-size: 0.8rem; color: var(--text-muted);">Endpoint: <code>POST /api/v1/simulation/deterministic-flow</code></span>
   </li>
   <li style="padding-left: 48px;">
     <strong>Монте-Карло (target_size = 5)</strong> — запуск 200–500 ітерацій з випадковими цілями.
     Результат: waterfall-графік декомпозиції втрат, S-Curve з blackout_rate.
+    <br><span style="font-size: 0.8rem; color: var(--text-muted);">Endpoint: <code>POST /api/v2/simulation/stream</code> (SSE)</span>
   </li>
   <li style="padding-left: 48px;">
     <strong>Pareto-таблиця</strong> — топ-10 найкритичніших вузлів і ЛЕП.
     Кольорові badge'і: OVERLOAD, ST_CLAIR, ISOLATION.
+    <br><span style="font-size: 0.8rem; color: var(--text-muted);">Endpoint: <code>GET /analytics/pareto?limit=10</code></span>
   </li>
   <li style="padding-left: 48px;">
     <strong>Pareto-frontier</strong> — графік trade-off: скільки вузлів захищати vs очікувані втрати.
+    <br><span style="font-size: 0.8rem; color: var(--text-muted);">Endpoint: <code>GET /analytics/pareto-frontier</code></span>
   </li>
   <li style="padding-left: 48px;">
     <strong>AI Copilot</strong> — запит природною мовою: «Яка підстанція спричиняє найбільші каскадні втрати?»
     Агент самостійно запускає симуляцію, аналізує Pareto і дає відповідь.
+    <br><span style="font-size: 0.8rem; color: var(--text-muted);">Endpoint: <code>POST /analytics/agent/chat/multi-stream</code> (SSE)</span>
   </li>
 </ol>
 
@@ -627,12 +938,72 @@
   <div class="metric-card"><div class="label">Сумарна генерація</div><div class="value">42 912 МВт</div></div>
   <div class="metric-card"><div class="label">Сумарне навантаження</div><div class="value">48 650 МВт</div></div>
   <div class="metric-card"><div class="label">Blackout threshold</div><div class="value">&ge;20% MW</div></div>
+  <div class="metric-card"><div class="label">DC PF точність (750 кВ)</div><div class="value">1–3%</div></div>
+  <div class="metric-card"><div class="label">Тестове покриття</div><div class="value">261 тест</div></div>
 </div>
 
-<p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 32px;">
-  GridTwin UA — автономна система. Без хмар, без зовнішніх залежностей.
-  Усе в Docker, on-premise розгортання.
+<h3>Середовище запуску:</h3>
+
+<p style="font-size: 0.9rem;">
+  Docker Compose (5 сервісів) на VPS або локальному ноутбуці.
+  Мінімальні вимоги: 4 GB RAM, 2 CPU.
+  Усі сервіси — у контейнерах. Жодних зовнішніх хмарних залежностей.
 </p>
+
+<hr style="border-color: var(--border); margin: 32px 0;">
+
+<!-- ═══════════ Глосарій ═══════════ -->
+<h2 id="glossary">Глосарій</h2>
+
+<dl class="glossary-grid">
+  <dt>DC Power Flow (DC PF)</dt>
+  <dd>Лінеаризований розрахунок потокорозподілу активної потужності (P = Bθ). Ігнорує реактивну потужність (Q) та напругу (V). Похибка 1–3% для EHV мереж. Використовується для швидкого скринінгу (~2 мс/ітерацію).</dd>
+
+  <dt>Монте-Карло (Monte Carlo)</dt>
+  <dd>Метод статистичного моделювання: N повторюваних симуляцій з випадковими вхідними параметрами для оцінки розподілу результатів.</dd>
+
+  <dt>SAON (САОН)</dt>
+  <dd>Спеціальна автоматика обмеження навантаження. Спрацьовує при перевантаженні лінії ≥105%. Пропорційно скидає навантаження (cat3 → cat2), щоб зняти перевантаження.</dd>
+
+  <dt>ACHR (АЧР)</dt>
+  <dd>Автоматика частотного розвантаження. Спрацьовує в ізольованих енергоостровах з дефіцитом генерації. 3-стадійний скид: cat3 → cat2 → collapse.</dd>
+
+  <dt>SPS (Special Protection Scheme)</dt>
+  <dd>Автоматика управління островами (Level 2 Hybrid Island Management). Дефіцит → скид навантаження. Профіцит → відключення генераторів.</dd>
+
+  <dt>ext_grid (Slack Bus, Балансуючий вузол)</dt>
+  <dd>Вузол у pandapower, який приймає на себе небаланс потужності в мережі. Без нього DC PF не має розв'язку (сингулярна матриця Jacobian). Distributed Slack: 3 ext_grid для запобігання single point of failure.</dd>
+
+  <dt>Betweenness Centrality</dt>
+  <dd>Міра «транзитності» вузла в графі — частка найкоротших шляхів між усіма парами вузлів, що проходять через цей вузол. Використовується в composite_score для відсіювання термінальних (структурно неважливих) вузлів.</dd>
+
+  <dt>St. Clair Curve</dt>
+  <dd>Емпірична формула для оцінки ліміту статичної стійкості ЛЕП залежно від довжини: P_max = P_SIL × factor × N_circuits. Factor = 1.5 для L ≤ 80 km, 400/L для L > 80 km.</dd>
+
+  <dt>SIL (Surge Impedance Loading)</dt>
+  <dd>Натуральна потужність лінії — навантаження, при якому реактивна потужність, що генерується ємністю лінії, дорівнює реактивній потужності, що споживається її індуктивністю. 330 кВ: 355 MW, 750 кВ: 2030 MW.</dd>
+
+  <dt>Production Armor</dt>
+  <dd>5 захисних фільтрів при побудові pandapower-мережі. Кожен параметр ЛЕП перевіряється на None/NaN/Inf/фізичну неможливість. Спрацювання → безпечний fallback + логування.</dd>
+
+  <dt>Ghost Filter</dt>
+  <dd>Подвійний фільтр у Pareto-ранжуванні: виключає вузли з degree ≤ 1 (термінальні — вічні жертви BFS, не тригери каскаду) та синтетичні імена (Bus_*, КТП*).</dd>
+
+  <dt>Causal Isolation (avg_ens_mw)</dt>
+  <dd>Метрика обчислюється тільки від targeted_buses (вузлів, які безпосередньо атакували), а не від cascade_failed_buses. Розділяє причину (атака) і наслідок (каскад).</dd>
+
+  <dt>Cliff Effect</dt>
+  <dd>Bistable поведінка симулятора: 0% або 100% блекаутів, без плавного діапазону. Спричинена рівномірним навантаженням (математична симетрія). Виправлена Gaussian noise (σ=0.25).</dd>
+
+  <dt>Hypertable</dt>
+  <dd>Спеціальний тип таблиці в TimescaleDB для часових рядів. Автоматичне партиціювання за часом (timestamp), оптимізоване для INSERT + time-range запитів. Використовується для simulation_logs і overload_events.</dd>
+
+  <dt>LangGraph</dt>
+  <dd>Фреймворк для побудови stateful, multi-actor агентів на базі LLM. Використовується для AI Copilot: Supervisor (routing) + Topology Worker + Physics Worker.</dd>
+
+  <dt>SSE (Server-Sent Events)</dt>
+  <dd>HTTP-протокол для потокової передачі подій від сервера до клієнта. Використовується для real-time симуляції (per-iteration метрики) та AI-чату (token-by-token streaming).</dd>
+</dl>
 
 </main>
 
