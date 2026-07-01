@@ -885,17 +885,15 @@
   Максимум 3 виклики worker'ів на запит (anti-loop guard).
 </p>
 
-<h3>8.3. SSE-протокол (endpoint: <code>POST /analytics/agent/chat/multi-stream</code>)</h3>
+<h3>8.3. Потокова взаємодія (SSE)</h3>
 
-<table>
-  <tr><th>SSE Event</th><th>Data</th><th>Опис</th></tr>
-  <tr><td><code>agent_transition</code></td><td>{active_agent, status}</td><td>Перемикання між worker'ами</td></tr>
-  <tr><td><code>agent_thought</code></td><td>{token}</td><td>Внутрішні міркування worker'а (потоково)</td></tr>
-  <tr><td><code>token</code></td><td>{content}</td><td>Фінальна відповідь (Markdown, потоково)</td></tr>
-  <tr><td><code>tool</code></td><td>{tool, args, status}</td><td>Виклик інструменту (start/end)</td></tr>
-  <tr><td><code>done</code></td><td>{}</td><td>Потік завершено</td></tr>
-  <tr><td><code>error</code></td><td>{message}</td><td>Невідновна помилка</td></tr>
-</table>
+<p>
+  Відповідь агента передається в реальному часі через потоковий протокол
+  <strong>Server-Sent Events (SSE)</strong>. Користувач бачить, як агент
+  поступово формує відповідь — слово за словом, з візуальними індикаторами
+  перемикання між worker'ами та виконання інструментів. Це створює ефект
+  «живого» діалогу замість очікування повної відповіді.
+</p>
 
 <h3>8.4. Можливості та обмеження</h3>
 
