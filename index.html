@@ -68,6 +68,25 @@
     .diagram .rd { color: var(--red); }
     .diagram .dim { color: var(--text-muted); }
 
+    /* ── Flow diagram (stage name + description, pre-wrap) ── */
+    .flow-diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin: 16px 0 24px;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      color: var(--text);
+    }
+    .flow-diagram .stage { font-size: 0.85rem; }
+    .flow-diagram .desc  { font-size: 0.78rem; }
+    .flow-diagram .arrow { font-size: 0.85rem; }
+    .flow-diagram .hl, .flow-diagram .or, .flow-diagram .gr, .flow-diagram .rd, .flow-diagram .dim { /* inherited from .diagram */ }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -288,6 +307,8 @@
       .metric-card .value { color: #111; }
       .metric-card .label { color: #555; }
       .note, .warning { background: #f5f5f5; }
+      .flow-diagram { background: #f5f5f5; border-color: #ddd; }
+      .flow-diagram .hl, .flow-diagram .or, .flow-diagram .gr, .flow-diagram .rd, .flow-diagram .dim { color: #111; }
       .tag { border: 1px solid #ccc; }
       .stage-list li { background: #f5f5f5; border-color: #ddd; }
       .stage-list li::before { background: #ddd; color: #111; }
@@ -515,39 +536,39 @@
 
 <h3>4.3. Пайплайн імпорту (OSM → БД)</h3>
 
-<div class="diagram" style="white-space: pre-wrap;">
-<span class="or" style="font-size:0.85rem;">▸ OpenStreetMap</span>
-<span class="dim" style="font-size:0.78rem;">   Збір топології — підстанції та ЛЕП з 25 регіонів України.</span>
+<div class="flow-diagram">
+<span class="or stage">▸ OpenStreetMap</span>
+<span class="dim desc">   Збір топології — підстанції та ЛЕП з 25 регіонів України.</span>
 
-   <span class="dim">↓</span>
+<span class="dim arrow">   ↓</span>
 
-<span class="or" style="font-size:0.85rem;">▸ Просторове злиття</span>
-<span class="dim" style="font-size:0.78rem;">   Об'єднання близьких точок (500 м), іменне злиття однойменних підстанцій, дедублікація паралельних ліній.</span>
+<span class="or stage">▸ Просторове злиття</span>
+<span class="dim desc">   Об'єднання близьких точок (500 м), іменне злиття однойменних підстанцій, дедублікація паралельних ліній.</span>
 
-   <span class="dim">↓</span>
+<span class="dim arrow">   ↓</span>
 
-<span class="or" style="font-size:0.85rem;">▸ Генератори (OSINT)</span>
-<span class="dim" style="font-size:0.78rem;">   28 електростанцій із Wikipedia, ENTSO-E, GEM. Зіставлення з найближчими вузлами мережі (радіус 10 км) — 25 із 28 зіставлено.</span>
+<span class="or stage">▸ Генератори (OSINT)</span>
+<span class="dim desc">   28 електростанцій із Wikipedia, ENTSO-E, GEM. Зіставлення з найближчими вузлами мережі (радіус 10 км) — 25 із 28 зіставлено.</span>
 
-   <span class="dim">↓</span>
+<span class="dim arrow">   ↓</span>
 
-<span class="or" style="font-size:0.85rem;">▸ Автотрансформатори</span>
-<span class="dim" style="font-size:0.78rem;">   42 шт. 750/330 кВ — імпорт із OSM.</span>
+<span class="or stage">▸ Автотрансформатори</span>
+<span class="dim desc">   42 шт. 750/330 кВ — імпорт із OSM.</span>
 
-   <span class="dim">↓</span>
+<span class="dim arrow">   ↓</span>
 
-<span class="or" style="font-size:0.85rem;">▸ St. Clair межі стійкості</span>
-<span class="dim" style="font-size:0.78rem;">   Обмеження пропускної здатності довгих ЛЕП за формулою статичної стійкості.</span>
+<span class="or stage">▸ St. Clair межі стійкості</span>
+<span class="dim desc">   Обмеження пропускної здатності довгих ЛЕП за формулою статичної стійкості.</span>
 
-   <span class="dim">↓</span>
+<span class="dim arrow">   ↓</span>
 
-<span class="or" style="font-size:0.85rem;">▸ Калібрування</span>
-<span class="dim" style="font-size:0.78rem;">   Підбір thermal multiplier (2.7) для реалістичного рівня перевантажень.</span>
+<span class="or stage">▸ Калібрування</span>
+<span class="dim desc">   Підбір thermal multiplier (2.7) для реалістичного рівня перевантажень.</span>
 
-   <span class="dim">↓</span>
+<span class="dim arrow">   ↓</span>
 
-<span class="gr" style="font-size:0.85rem;">▸ Готова модель мережі</span>
-<span class="dim" style="font-size:0.78rem;">   Повна модель 330/750 кВ, готова до симуляцій.</span>
+<span class="gr stage">▸ Готова модель мережі</span>
+<span class="dim desc">   Повна модель 330/750 кВ, готова до симуляцій.</span>
 </div>
 
 <h3>4.4. Якість даних</h3>
@@ -583,40 +604,49 @@
 
 <h3>5.1. Етапи однієї ітерації Монте-Карло</h3>
 
-<div class="diagram">
-<span class="dim">Кожна ітерація (N × target_size):</span>
+<div class="flow-diagram">
+<span class="dim desc">Кожна ітерація (N × target_size):</span>
 
-<span class="or">① Первинний удар</span> (Primary Strike)
-   Відключення N випадкових вузлів згідно з вибраним профілем атаки.
+<span class="or stage">① Первинний удар</span>
+<span class="dim desc">   Відключення N випадкових вузлів згідно з вибраним профілем атаки.
    Навантаження на кожному вузлі отримує незалежну випадкову добавку
    (Gaussian noise, σ=25%) — це створює природні гарячі/холодні зони
-   та запобігає математичній симетрії (cliff effect).
+   та запобігає математичній симетрії (cliff effect).</span>
 
-<span class="hl">② DC Power Flow</span> (розрахунок потокорозподілу)
-   Лінеаризований розрахунок перетоків активної потужності.
+<span class="dim arrow">   ↓</span>
+
+<span class="hl stage">② DC Power Flow</span>
+<span class="dim desc">   Лінеаризований розрахунок перетоків активної потужності.
    Використовується 3 балансуючі вузли (distributed slack)
-   на топ-3 підстанціях 750 кВ — це запобігає single point of failure.
+   на топ-3 підстанціях 750 кВ — це запобігає single point of failure.</span>
 
-<span class="or">③ Каскад перевантажень</span> (до 8 хвиль)
-   a. <span class="hl">САОН</span> — автоматика обмеження навантаження:
-      при завантаженні лінії ≥105% пропорційно скидається
+<span class="dim arrow">   ↓</span>
+
+<span class="or stage">③ Каскад перевантажень (до 8 хвиль)</span>
+<span class="dim desc">   a. САОН — при завантаженні лінії ≥105% пропорційно скидається
       навантаження споживачів для зняття перевантаження.
-   b. DC Power Flow перерахунок — як змінилися потоки?
-   c. <span class="rd">Ймовірнісне відключення ліній</span> —
-      що більше перевантажена лінія, то вища ймовірність її відмови.
-   d. Відключення ліній → перерахунок → повтор.
+   b. Перерахунок потоків — як змінилася ситуація?
+   c. Ймовірнісне відключення ліній — що більше перевантаження,
+      то вища ймовірність відмови.
+   d. Відключення ліній → перерахунок → повтор.</span>
 
-<span class="or">④ Детекція енергоостровів</span>
-   Після каскаду мережа може розпастися на ізольовані острови.
+<span class="dim arrow">   ↓</span>
+
+<span class="or stage">④ Детекція енергоостровів</span>
+<span class="dim desc">   Після каскаду мережа може розпастися на ізольовані острови.
    Система визначає, які острови ще «живі» (мають генерацію),
-   а які — знеструмлені.
+   а які — знеструмлені.</span>
 
-<span class="or">⑤ Автоматика в островах</span>
-   Живі острови з дефіцитом генерації → АЧР (аварійне частотне
-   розвантаження). Острови з профіцитом → відключення генераторів.
+<span class="dim arrow">   ↓</span>
 
-<span class="or">⑥ Оцінка блекауту</span>
-   Втрата ≥20% сумарного навантаження мережі = системний блекаут.
+<span class="or stage">⑤ Автоматика в островах</span>
+<span class="dim desc">   Живі острови з дефіцитом генерації → АЧР (аварійне частотне
+   розвантаження). Острови з профіцитом → відключення генераторів.</span>
+
+<span class="dim arrow">   ↓</span>
+
+<span class="or stage">⑥ Оцінка блекауту</span>
+<span class="dim desc">   Втрата ≥20% сумарного навантаження мережі = системний блекаут.</span>
 </div>
 
 <h3>5.2. Види симуляцій</h3>
