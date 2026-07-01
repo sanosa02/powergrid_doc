@@ -154,9 +154,100 @@
       margin: 16px 0;
       font-size: 0.9rem;
     }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 260px;
+      height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      overflow-y: auto;
+      z-index: 100;
+      transition: transform 0.25s ease;
+    }
+
+    .sidebar-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      padding-left: 8px;
+    }
+
+    .sidebar-nav { list-style: none; padding: 0; margin: 0; }
+
+    .sidebar-nav li { margin-bottom: 2px; }
+
+    .sidebar-nav a {
+      display: block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .sidebar-nav a:hover { background: var(--accent-dim); color: var(--text); }
+    .sidebar-nav a.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+
+    .sidebar-toggle {
+      display: none;
+      position: fixed;
+      top: 12px; left: 12px;
+      z-index: 200;
+      width: 40px; height: 40px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 1.2rem;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .main-content {
+      margin-left: 260px;
+      max-width: 960px;
+      padding: 40px 32px 80px;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-toggle { display: flex; }
+      .main-content { margin-left: 0; padding: 64px 20px 60px; }
+    }
   </style>
 </head>
 <body>
+
+<!-- Sidebar Toggle (mobile) -->
+<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Меню">☰</button>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-title">Зміст</div>
+  <ul class="sidebar-nav">
+    <li><a href="#purpose">1. Призначення системи</a></li>
+    <li><a href="#architecture">2. Системна архітектура</a></li>
+    <li><a href="#data-model">3. Модель даних</a></li>
+    <li><a href="#simulation">4. Симуляційний пайплайн</a></li>
+    <li><a href="#analytics">5. Аналітика та метрики</a></li>
+    <li><a href="#ui">6. Інтерфейс користувача</a></li>
+    <li><a href="#ai-copilot">7. AI Copilot</a></li>
+    <li><a href="#demo-summary">8. Резюме для демо</a></li>
+  </ul>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
 
 <h1>⚡ GridTwin UA</h1>
 <p class="subtitle">Цифровий двійник магістральної мережі України (330/750 кВ) — архітектура демо</p>
@@ -170,7 +261,7 @@
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
-<h2>1. Призначення системи</h2>
+<h2 id="purpose">1. Призначення системи</h2>
 
 <p>Система відповідає на ключові питання експлуатації мережі:</p>
 
@@ -183,7 +274,7 @@
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
-<h2>2. Системна архітектура</h2>
+<h2 id="architecture">2. Системна архітектура</h2>
 
 <p>Тришарова архітектура: база даних → бекенд (FastAPI) → фронтенд (React). Усе в Docker.</p>
 
@@ -227,7 +318,7 @@
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
-<h2>3. Модель даних</h2>
+<h2 id="data-model">3. Модель даних</h2>
 
 <h3>3.1. Топологія мережі</h3>
 
@@ -273,7 +364,7 @@
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
-<h2>4. Симуляційний пайплайн</h2>
+<h2 id="simulation">4. Симуляційний пайплайн</h2>
 
 <p>
   Ядро симуляції — <strong>фізичний розрахунок потокорозподілу</strong> (DC Power Flow) через бібліотеку pandapower.
@@ -367,7 +458,7 @@
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
-<h2>5. Аналітика та метрики</h2>
+<h2 id="analytics">5. Аналітика та метрики</h2>
 
 <h3>5.1. Pareto-ранжування</h3>
 
@@ -426,7 +517,7 @@
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
-<h2>6. Інтерфейс користувача</h2>
+<h2 id="ui">6. Інтерфейс користувача</h2>
 
 <h3>6.1. Основні компоненти</h3>
 
@@ -460,7 +551,7 @@
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
-<h2>7. AI Copilot (Агент-аналітик)</h2>
+<h2 id="ai-copilot">7. AI Copilot (Агент-аналітик)</h2>
 
 <p>
   Вбудований AI-асистент на базі <strong>LangGraph</strong> (Supervisor-Worker архітектура),
@@ -501,7 +592,7 @@
 
 <hr style="border-color: var(--border); margin: 32px 0;">
 
-<h2>8. Резюме для демо</h2>
+<h2 id="demo-summary">8. Резюме для демо</h2>
 
 <h3>Що показуємо (типовий demo flow):</h3>
 
@@ -542,6 +633,35 @@
   GridTwin UA — автономна система. Без хмар, без зовнішніх залежностей.
   Усе в Docker, on-premise розгортання.
 </p>
+
+</main>
+
+<script>
+(function(){
+  const links = document.querySelectorAll('.sidebar-nav a');
+  const sections = [...links].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+
+  function onScroll(){
+    let current = sections[0];
+    for (const s of sections) {
+      if (s.getBoundingClientRect().top <= 120) current = s;
+    }
+    links.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current.id);
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, {passive: true});
+  onScroll();
+
+  // Close sidebar on link click (mobile)
+  links.forEach(a => {
+    a.addEventListener('click', () => {
+      document.querySelector('.sidebar').classList.remove('open');
+    });
+  });
+})();
+</script>
 
 </body>
 </html>
