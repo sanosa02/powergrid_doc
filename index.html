@@ -515,39 +515,39 @@
 
 <h3>4.3. Пайплайн імпорту (OSM → БД)</h3>
 
-<div class="diagram">
-<span class="or">▸ OpenStreetMap</span>
-<span class="dim">   Збір топології — підстанції та ЛЕП з 25 регіонів України через Overpass API.</span>
+<div class="diagram" style="white-space: pre-wrap;">
+<span class="or" style="font-size:0.85rem;">▸ OpenStreetMap</span>
+<span class="dim" style="font-size:0.78rem;">   Збір топології — підстанції та ЛЕП з 25 регіонів України.</span>
 
-<span class="dim">   ↓</span>
+   <span class="dim">↓</span>
 
-<span class="or">▸ Просторове злиття</span>
-<span class="dim">   Об'єднання близьких точок (500 м), іменне злиття однойменних підстанцій, дедублікація паралельних ліній.</span>
+<span class="or" style="font-size:0.85rem;">▸ Просторове злиття</span>
+<span class="dim" style="font-size:0.78rem;">   Об'єднання близьких точок (500 м), іменне злиття однойменних підстанцій, дедублікація паралельних ліній.</span>
 
-<span class="dim">   ↓</span>
+   <span class="dim">↓</span>
 
-<span class="or">▸ Генератори (OSINT)</span>
-<span class="dim">   28 електростанцій із Wikipedia, ENTSO-E, GEM. Просторове зіставлення з найближчими вузлами мережі (радіус 10 км) — 25 зіставлено.</span>
+<span class="or" style="font-size:0.85rem;">▸ Генератори (OSINT)</span>
+<span class="dim" style="font-size:0.78rem;">   28 електростанцій із Wikipedia, ENTSO-E, GEM. Зіставлення з найближчими вузлами мережі (радіус 10 км) — 25 із 28 зіставлено.</span>
 
-<span class="dim">   ↓</span>
+   <span class="dim">↓</span>
 
-<span class="or">▸ Автотрансформатори</span>
-<span class="dim">   42 шт. 750/330 кВ — імпорт із OSM з параметрами радянських АТ.</span>
+<span class="or" style="font-size:0.85rem;">▸ Автотрансформатори</span>
+<span class="dim" style="font-size:0.78rem;">   42 шт. 750/330 кВ — імпорт із OSM.</span>
 
-<span class="dim">   ↓</span>
+   <span class="dim">↓</span>
 
-<span class="or">▸ St. Clair межі стійкості</span>
-<span class="dim">   Обмеження пропускної здатності довгих ЛЕП за формулою статичної стійкості.</span>
+<span class="or" style="font-size:0.85rem;">▸ St. Clair межі стійкості</span>
+<span class="dim" style="font-size:0.78rem;">   Обмеження пропускної здатності довгих ЛЕП за формулою статичної стійкості.</span>
 
-<span class="dim">   ↓</span>
+   <span class="dim">↓</span>
 
-<span class="or">▸ Калібрування</span>
-<span class="dim">   Підбір thermal multiplier (2.7) для реалістичного рівня перевантажень у симуляціях.</span>
+<span class="or" style="font-size:0.85rem;">▸ Калібрування</span>
+<span class="dim" style="font-size:0.78rem;">   Підбір thermal multiplier (2.7) для реалістичного рівня перевантажень.</span>
 
-<span class="dim">   ↓</span>
+   <span class="dim">↓</span>
 
-<span class="gr">▸ Готова модель мережі</span>
-<span class="dim">   Результат — повна модель 330/750 кВ, готова до симуляцій.</span>
+<span class="gr" style="font-size:0.85rem;">▸ Готова модель мережі</span>
+<span class="dim" style="font-size:0.78rem;">   Повна модель 330/750 кВ, готова до симуляцій.</span>
 </div>
 
 <h3>4.4. Якість даних</h3>
